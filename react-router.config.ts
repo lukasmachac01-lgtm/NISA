@@ -1,7 +1,7 @@
-import type { Config } from '@react-router/dev/config';
+import type { Config } from "@react-router/dev/config";
 
 export default {
-	appDirectory: './src/app',
-	ssr: true,
-	prerender: ['/*?'],
+  // Tento řádek říká robotovi: "Zapomeň na src, všechno je ve složce app"
+  appDirectory: "app",
+  ssr: false,
 } satisfies Config;
