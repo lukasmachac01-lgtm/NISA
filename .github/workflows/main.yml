@@ -22,14 +22,29 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build
-        # Tento příkaz vytvoří web, i když v package.json chybí sekce "scripts"
+        # Force hledání složky app v kořenovém adresáři
         run: npx react-router build
+        env:
+          REACT_ROUTER_APP_DIR: app
+
+      - name: Determine Deployment Directory
+        id: fix-path
+        run: |
+          if [ -d "build/client" ]; then
+            echo "out_path=build/client" >> $GITHUB_OUTPUT
+          elif [ -d "dist" ]; then
+            echo "out_path=dist" >> $GITHUB_OUTPUT
+          elif [ -d "build" ]; then
+            echo "out_path=build" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Build directory not found!"
+            exit 1
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # React Router v7 ukládá hotový web do této složky
-          path: build/client
+          path: ${{ steps.fix-path.outputs.out_path }}
 
   deploy:
     needs: build_site
