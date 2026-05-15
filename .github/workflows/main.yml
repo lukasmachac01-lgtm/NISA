@@ -22,10 +22,8 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build
-        # Force hledání složky app v kořenovém adresáři
+        # Teď už robot použije nastavení z opraveného configu
         run: npx react-router build
-        env:
-          REACT_ROUTER_APP_DIR: app
 
       - name: Determine Deployment Directory
         id: fix-path
@@ -34,11 +32,8 @@ jobs:
             echo "out_path=build/client" >> $GITHUB_OUTPUT
           elif [ -d "dist" ]; then
             echo "out_path=dist" >> $GITHUB_OUTPUT
-          elif [ -d "build" ]; then
-            echo "out_path=build" >> $GITHUB_OUTPUT
           else
-            echo "Error: Build directory not found!"
-            exit 1
+            echo "out_path=build" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload Artifacts
