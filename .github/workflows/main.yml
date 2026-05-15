@@ -13,6 +13,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fix structure
+        # Tohle vytvoří složku app a naháže tam všechny rozházené soubory
+        run: |
+          mkdir -p app
+          mv root.tsx app/ 2>/dev/null || true
+          mv page.jsx app/ 2>/dev/null || true
+          mv page.tsx app/ 2>/dev/null || true
+          mv layouts.ts app/ 2>/dev/null || true
+          mv global.css app/ 2>/dev/null || true
+          mv index.css app/ 2>/dev/null || true
+          mv not-found.tsx app/ 2>/dev/null || true
+          mv route*.js app/ 2>/dev/null || true
+          mv page*.jsx app/ 2>/dev/null || true
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -22,24 +36,14 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build
-        # Teď už robot použije nastavení z opraveného configu
         run: npx react-router build
-
-      - name: Determine Deployment Directory
-        id: fix-path
-        run: |
-          if [ -d "build/client" ]; then
-            echo "out_path=build/client" >> $GITHUB_OUTPUT
-          elif [ -d "dist" ]; then
-            echo "out_path=dist" >> $GITHUB_OUTPUT
-          else
-            echo "out_path=build" >> $GITHUB_OUTPUT
-          fi
+        env:
+          REACT_ROUTER_APP_DIR: app
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.fix-path.outputs.out_path }}
+          path: build/client
 
   deploy:
     needs: build_site
